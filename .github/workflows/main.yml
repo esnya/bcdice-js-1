@@ -3,7 +3,9 @@
 name: Auto Update
 
 on:
-  push: '**'
+  push:
+    branches: '**'
+    tags: '**'
   schedule:
     - cron: '* * * * *'
 
