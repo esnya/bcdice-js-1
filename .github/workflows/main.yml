@@ -22,12 +22,9 @@ jobs:
         npm ci
     - name: Update BCDice
       run: |
+        git submodule update --init
         git checkout -f
         git checkout origin/master
-        git pull
-      working-directory: BCDice
-    - name: Lint
-      run: npm run lint
     - name: Build
       run: npm run build
     - name: Test
