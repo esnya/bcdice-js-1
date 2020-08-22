@@ -6,7 +6,7 @@ name: Auto Update
 # events but only for the master branch
 on:
   schedule:
-    - cron: "@houry"
+    - cron: "@hourly"
 
 jobs:
   build:
