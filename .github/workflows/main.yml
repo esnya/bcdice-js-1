@@ -22,7 +22,7 @@ jobs:
         npm ci
     - name: Update BCDice
       run: |
-        git checkout -f master
+        git checkout master -f
         git pull
       working-directory: BCDice
     - name: Lint
