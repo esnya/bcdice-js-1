@@ -1,0 +1,72 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Auto Update
+
+on:
+  # push:
+  #   branches: '**'
+  #   tags: '**'
+  schedule:
+    - cron: '0,5,10,15,20,25,30,35,40,45,50,55 * * * *'
+
+jobs:
+  auto_update:
+    runs-on: ubuntu-latest
+    steps:
+    - run: git config --global user.name "github-actions"
+    - run: git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+    - uses: actions/checkout@v2
+    - run: git submodule update --init
+
+    - uses: actions/setup-ruby@v1
+
+    - uses: actions/cache@v2
+      with:
+        path: vendor/bundle
+        key: ${{runner.os}}-gems-${{hashFiles('**/Gemfile.lock')}}
+        restore-keys: ${{ runner.os }}-gems-
+    - uses: actions/cache@v2
+      with:
+        path: |
+          ~/.npm
+          **/node_modules
+        key: ${{runner.os}}-node-${{hashFiles('**/package-lock.json')}}
+        restore-keys: ${{ runner.os }}-node-
+
+    - id: ruby_install
+      run: |
+        gem install bundler
+        bundle config path vendor/bundle
+        bundle install --jobs 4 --retry 3
+    - id: npm_install
+      run: |
+        npm ci
+
+    - run: ./scripts/autopatch_rebase.sh master
+      continue-on-error: true
+    - run: git add .
+      working-directory: BCDice
+    - run: ./scripts/autopatch_apply.sh master
+      continue-on-error: true
+    - id: build
+      run: npm run build
+      continue-on-error: true
+    - if: steps.build.outcome == 'failure'
+      run: |
+        find patched -type f -name *.rej  | sed -e 's/.*/::error file=patch.diff::Patch rejected: \0/'
+    - id: test
+      run: npm run test -s -- -q >& test.log
+    - if: failure() && steps.test.outcome == 'failure'
+      run: |
+        cat test.log | grep "): error" | sed -re 's/^(.+?)\(([0-9]+),([0-9]+)\): (.*)/::error file=\1,line=\2,col=\3::\4/'
+    - id: is_changed
+      run: if [[ $(git diff BCDice) ]]; then echo "::set-output name=changed::true"; fi
+    - if: steps.is_changed.outputs.changed == 'true'
+      run: |
+        git branch -D auto-update || true
+        git checkout -b auto-update
+        git add BCDice
+        git commit -m "AutoUpdate"
+        git push -f origin auto-update
+    - run: npm run example

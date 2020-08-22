@@ -30,7 +30,7 @@ task :copy do
 end
 
 task patch: [:copy] do
-  sh 'patch -p2 < ../patch.diff', { chdir: $patchedDir }, {}
+  sh 'patch -N -p2 < ../patch.diff', { chdir: $patchedDir }, {}
 end
 
 task build: %i[
