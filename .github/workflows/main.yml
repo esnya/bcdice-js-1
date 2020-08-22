@@ -10,7 +10,7 @@ on:
     - cron: '* * * * *'
 
 jobs:
-  build:
+  auto_update:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -22,7 +22,8 @@ jobs:
         npm ci
     - name: Update BCDice
       run: |
-        git checkout master -f
+        git checkout -f
+        git checkout origin/master
         git pull
       working-directory: BCDice
     - name: Lint
