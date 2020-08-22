@@ -20,11 +20,11 @@ jobs:
         gem install bundler
         bundle install
         npm ci
+        git submodule update --init
     - name: Update BCDice
       run: |
-        git submodule update --init
-        git checkout -f
-        git checkout origin/master
+        git checkout -f origin/master
+      working-directory: BCDice
     - name: Build
       run: npm run build
     - name: Test
