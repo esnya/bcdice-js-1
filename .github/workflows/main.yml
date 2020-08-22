@@ -28,7 +28,7 @@ jobs:
     - name: Build
       run: |
         npm run clean
-        ./scripts/autopatch_reabase.sh master
+        ./scripts/autopatch_rebase.sh master
         cd BCDice
         git add .
         cd ..
