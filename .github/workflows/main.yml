@@ -3,8 +3,9 @@
 name: Auto Update
 
 on:
+  push: '**'
   schedule:
-    - cron: '*/15 * * * *'
+    - cron: '* * * * *'
 
 jobs:
   build:
