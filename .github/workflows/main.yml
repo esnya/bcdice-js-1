@@ -1,0 +1,32 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Auto Update
+
+# Controls when the action will run. Triggers the workflow on push or pull request
+# events but only for the master branch
+on:
+  schedule:
+    - cron: "@houry"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: install
+      run: |
+        bundler install
+        npm ci
+    - name: Update BCDice
+      run: |
+        git checkout -f master
+        git pull
+      working-directory: BCDice
+    - name: Lint
+      run: npm run lint
+    - name: Build
+      run: npm run build
+    - name: Test
+      run: |
+        npm run test
+        npm run example
